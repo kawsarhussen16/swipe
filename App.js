@@ -1,19 +1,35 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { DATA } from "./src/components/Data";
+import { Card, Button } from "react-native-elements";
+import Deck from "./src/components/Deck";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
+class App extends React.Component {
+  renderCard(item) {
+    return (
+      <Card key={item.id} title={item.text} image={{ uri: item.uri }}>
+        <Button
+          icon={{ name: "code" }}
+          backgroundColor="#03A9F4"
+          title="View Now!"
+        />
+      </Card>
+    );
+  }
+  render() {
+    return (
+      <View style={styles.container}>
+        <Deck data={DATA} renderCard={this.renderCard} />
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 20,
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
   },
 });
+export default App;
