@@ -6,6 +6,8 @@ import {
   Animated,
   PanResponder,
   Dimensions,
+  LayoutAnimation,
+  UIManager,
 } from "react-native";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -37,6 +39,17 @@ class Deck extends Component {
 
     this.state = { panResponder, position, index: 0 };
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data !== this.props.data) {
+      this.setState({ index: 0 });
+    }
+  }
+  componentWillUpdate() {
+    UIManager.setLayoutAnimationEnabledExperimental &&
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    LayoutAnimation.spring();
+  }
+
   forceSwipe(direction) {
     const x = direction === "right" ? SCREEN_WIDTH : -SCREEN_WIDTH;
     Animated.timing(this.state.position, {
@@ -70,22 +83,36 @@ class Deck extends Component {
     };
   }
   renderCards() {
-    return this.props.data.map((item, i) => {
-      if (i < this.state.index) return null;
-      if (i === this.state.index) {
+    if (this.state.index >= this.props.data.length) {
+      return this.props.renderNoMoreCard();
+    }
+    return this.props.data
+      .map((item, i) => {
+        if (i < this.state.index) {
+          return null;
+        }
+        if (i === this.state.index) {
+          return (
+            <Animated.View
+              key={item.id}
+              {...this.state.panResponder.panHandlers}
+              style={[this.getCardStyle(), styles.cardStyle]}
+              {...this.state.panResponder.panHandlers}
+            >
+              {this.props.renderCard(item)}
+            </Animated.View>
+          );
+        }
         return (
           <Animated.View
             key={item.id}
-            {...this.state.panResponder.panHandlers}
-            style={this.getCardStyle()}
-            {...this.state.panResponder.panHandlers}
+            style={[styles.cardStyle, { top: 10 * (i - this.state.index) }]}
           >
             {this.props.renderCard(item)}
           </Animated.View>
         );
-      }
-      return this.props.renderCard(item);
-    });
+      })
+      .reverse();
   }
   render() {
     return <View>{this.renderCards()}</View>;
@@ -95,7 +122,9 @@ class Deck extends Component {
 export default Deck;
 
 const styles = StyleSheet.create({
-  container: {
-    margin: 10,
+  cardStyle: {
+    position: "absolute",
+    width: SCREEN_WIDTH,
+    zIndex: 1,
   },
 });
