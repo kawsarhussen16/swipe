@@ -9,6 +9,6 @@ npm-debug.*
 *.orig.*
 web-build/
 web-report/
-
+firebase/functions/service_account.json
 # macOS
 .DS_Store
